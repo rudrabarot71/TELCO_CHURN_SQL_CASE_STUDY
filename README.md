@@ -31,7 +31,7 @@ This project analyzes customer churn for a telecom company to identify which cus
 1. Which contract type has the highest churn rate?
 2. Which payment method has the highest churn rate?
 3. What is the churn rate by customer tenure bucket?
-4. Which payment method has the highest churn rate?
+4. Which customer segments, based on tenure and monthly charge levels, have the highest churn rate?
 5. Do customers without online security or tech support churn more than those who have it?
 
 ---
