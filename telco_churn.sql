@@ -81,8 +81,8 @@ ORDER BY churn_rate_pct DESC;
 -- The query then groups by both dimensions to calculate total customers,
 -- churned customers, and churn rate (%) to identify high-risk combinations.
 
--- FINDING: New customers with High monthly charges have the highest churn rate at 73%,
--- followed by New + Medium at 52% and Early Loyal + High at 49%.
+-- FINDING: New customers with High monthly charges have the highest churn rate at 73%, 
+-- which is over 24x higher than Long-Term Loyal customers with Low charges (3%).
 
 WITH segmented_data AS (
     SELECT *,
