@@ -74,22 +74,39 @@ GROUP BY tenure_bucket
 ORDER BY churn_rate_pct DESC;
 
 
--- QUESTION 4) Which payment method has the highest churn rate? 
+-- QUESTION 4) Which customer segments, based on tenure and monthly charge levels, have the highest churn rate?
 
--- LOGIC: Group all customers by their payment method and calculate total customers,
--- churned customers ,churn rate (%) for each group to identify 
--- which payment method is most associated with churn.
+-- LOGIC: Customers are first segmented into tenure buckets (New, Early Loyal,
+-- Developing Loyal, Long-Term Loyal) and monthly charge segments (Low, Medium, High).
+-- The query then groups by both dimensions to calculate total customers,
+-- churned customers, and churn rate (%) to identify high-risk combinations.
 
--- FINDING: Electronic check users have the highest churn rate at 45%, which is
--- 3x higher than credit card users (15%).
+-- FINDING: New customers with High monthly charges have the highest churn rate at 73%,
+-- followed by New + Medium at 52% and Early Loyal + High at 49%.
 
+WITH segmented_data AS (
+    SELECT *,
+        CASE 
+            WHEN tenure BETWEEN 0 AND 12 THEN 'New'
+            WHEN tenure BETWEEN 13 AND 24 THEN 'Early Loyal'
+            WHEN tenure BETWEEN 25 AND 48 THEN 'Developing Loyal'
+            WHEN tenure BETWEEN 49 AND 72 THEN 'Long-Term Loyal'
+        END AS tenure_bucket,
+        CASE 
+            WHEN monthlycharges < 50 THEN 'Low'
+            WHEN monthlycharges BETWEEN 50 AND 80 THEN 'Medium'
+            ELSE 'High'
+        END AS charge_segment
+    FROM churn
+)
 SELECT 
-    paymentmethod,
+    tenure_bucket,
+    charge_segment,
     COUNT(*) AS total_customers,
     COUNT(NULLIF(churn, 'No')) AS churned_customers,
     ROUND(CAST(COUNT(NULLIF(churn, 'No')) AS FLOAT) * 100.0 / COUNT(*), 0) AS churn_rate_pct
-FROM churn
-GROUP BY paymentmethod
+FROM segmented_data
+GROUP BY tenure_bucket, charge_segment
 ORDER BY churn_rate_pct DESC;
 
 
