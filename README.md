@@ -122,24 +122,41 @@ ORDER BY churn_rate_pct DESC;
 
 ---
 
-### Question 4: Which payment method has the highest churn rate? *(NULLIF approach)*
+### Question 4: Which customer segments, based on tenure and monthly charge levels, have the highest churn rate?
 
 ```sql
--- LOGIC: Group all customers by their payment method and calculate total customers,
--- churned customers, and churn rate (%) for each group to identify which payment method
--- is most associated with churn. NULLIF is used as a concise alternative to CASE WHEN
--- for counting churned customers.
+-- LOGIC: A CTE (segmented_data) first assigns each customer to a tenure bucket
+-- (New, Early Loyal, Developing Loyal, Long-Term Loyal) and a monthly charge segment
+-- (Low, Medium, High) using CASE statements. The outer query then aggregates total customers,
+-- churned customers, and churn rate (%) for each combination
+-- to efficiently identify high-risk customer segments.
 
--- FINDING: Electronic check users have the highest churn rate at 45%, which is
--- 3x higher than credit card users (15%).
+-- FINDING: New customers with High monthly charges have the highest churn rate at 73%, 
+-- which is over 24x higher than Long-Term Loyal customers with Low charges (3%).
 
+WITH segmented_data AS (
+    SELECT *,
+        CASE 
+            WHEN tenure BETWEEN 0 AND 12 THEN 'New'
+            WHEN tenure BETWEEN 13 AND 24 THEN 'Early Loyal'
+            WHEN tenure BETWEEN 25 AND 48 THEN 'Developing Loyal'
+            WHEN tenure BETWEEN 49 AND 72 THEN 'Long-Term Loyal'
+        END AS tenure_bucket,
+        CASE 
+            WHEN monthlycharges < 50 THEN 'Low'
+            WHEN monthlycharges BETWEEN 50 AND 80 THEN 'Medium'
+            ELSE 'High'
+        END AS charge_segment
+    FROM churn
+)
 SELECT 
-    paymentmethod,
+    tenure_bucket,
+    charge_segment,
     COUNT(*) AS total_customers,
     COUNT(NULLIF(churn, 'No')) AS churned_customers,
     ROUND(CAST(COUNT(NULLIF(churn, 'No')) AS FLOAT) * 100.0 / COUNT(*), 0) AS churn_rate_pct
-FROM churn
-GROUP BY paymentmethod
+FROM segmented_data
+GROUP BY tenure_bucket, charge_segment
 ORDER BY churn_rate_pct DESC;
 ```
 
@@ -182,28 +199,27 @@ ORDER BY churn_rate_pct DESC;
 
 ## Results + Insights
 
-|  | Question | Key Finding | Business Meaning |
-|---|---|---|---|
-| Q1 | Which contract type has the highest churn rate? | Month-to-Month contracts churn at 42%, 21x higher than Two Year contracts (2%) | Long-term contracts are a powerful retention lever |
-| Q2 | Which payment method has the highest churn rate? | Electronic check users churn at 45%, 3x higher than credit card users (15%) | Auto-pay adoption could passively reduce churn |
-| Q3 | What is the churn rate by customer tenure bucket? | New customers (0-12 months) churn at 47%, 4.7x higher than Long-Term Loyal customers (10%) | The first 12 months are the most critical retention window |
-| Q4 | Which payment method has the highest churn rate? | Electronic check users churn at 45%, 3x higher than credit card users (15%) | Same insight demonstrated using NULLIF instead of CASE WHEN |
-| Q5 | Do unprotected customers churn more? | No Protection customers churn at 49%, 5.4x higher than Full Protection customers (9%) | Add-on services are strongly tied to customer retention |
+|    | Question                                                                                         | Key Finding                                                         | Business Meaning                                                                                                            |
+| -- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Q1 | Which contract type has the highest churn rate?                                                  | Month-to-Month churn is drastically higher than long-term contracts | Moving customers to long-term contracts is the most impactful way to reduce churn and improve retention stability           |
+| Q2 | Which payment method has the highest churn rate?                                                 | Electronic check users churn significantly more than auto-pay users | Promoting auto-pay can reduce churn by increasing convenience and reducing payment friction                                 |
+| Q3 | What is the churn rate by customer tenure bucket?                                                | New customers churn far more than long-term customers               | Retention efforts should be heavily focused on the first few months, as early experience drives long-term loyalty           |
+| Q4 | Which customer segments, based on tenure and monthly charge levels, have the highest churn rate? | New + High-paying customers have the highest churn                  | High-value customers are most vulnerable early, so targeted onboarding and pricing strategies can prevent high revenue loss |
+| Q5 | Do customers without online security or tech support churn more than those who have it?          | Customers without protection churn far more                         | Increasing adoption of add-on services can improve retention while also driving additional revenue                          |
 
 ---
 
 ## 3 Recommendations
 
-1. **Target Month-to-Month customers with contract upgrade offers** — A discount or loyalty reward for switching to an annual or two-year plan could dramatically reduce the 42% churn rate in this segment.
+1. **Drive migration to long-term contracts for high-risk customers** — Prioritize month-to-month customers—especially those early in their lifecycle—with targeted incentives such as limited-time discounts or bundled value offers. This directly addresses the highest churn segment and improves revenue predictability.
 
-2. **Launch an onboarding retention program for new customers (0–12 months)** — Since nearly half of new customers churn, a structured onboarding experience with proactive check-ins and early engagement incentives could significantly reduce early dropout.
+2. **Strengthen early-stage customer experience** — Implement a structured onboarding program with proactive engagement (welcome journeys, usage guidance, early support touchpoints). Reducing friction early can significantly lower churn and increase lifetime value.
 
-3. **Incentivize electronic check users to switch to auto-pay** — Offering a small monthly discount for switching to bank transfer or credit card payments could passively reduce churn, given that electronic check users churn at 3x the rate of auto-pay customers.
-
+3. **Increase adoption of auto-pay and value-added services** — Encourage customers to switch from electronic checks to auto-pay through small incentives, while also promoting add-on services like tech support and online security. This both reduces churn risk and increases customer stickiness and revenue per user.
 ---
 
 ## Next Question to Explore
 
-**Does monthly charge amount influence churn rate?**
+**How much revenue is lost due to churn, and which segments contribute the most to this loss?**
 
-If higher-paying customers churn more, it would suggest price sensitivity is a key driver — which could inform tiered pricing or loyalty discount strategies. This would require bucketing `MonthlyCharges` into low, medium, and high segments and analyzing churn rate across each, potentially combined with contract type for deeper insight.
+This would shift the analysis from who is churning to which churn matters most financially, helping prioritize high-value customer retention strategies.
