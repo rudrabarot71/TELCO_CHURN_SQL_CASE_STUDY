@@ -76,10 +76,11 @@ ORDER BY churn_rate_pct DESC;
 
 -- QUESTION 4) Which customer segments, based on tenure and monthly charge levels, have the highest churn rate?
 
--- LOGIC: Customers are first segmented into tenure buckets (New, Early Loyal,
--- Developing Loyal, Long-Term Loyal) and monthly charge segments (Low, Medium, High).
--- The query then groups by both dimensions to calculate total customers,
--- churned customers, and churn rate (%) to identify high-risk combinations.
+-- LOGIC: A CTE (segmented_data) first assigns each customer to a tenure bucket
+-- (New, Early Loyal, Developing Loyal, Long-Term Loyal) and a monthly charge segment
+-- (Low, Medium, High) using CASE statements. The outer query then aggregates total customers,
+-- churned customers, and churn rate (%) for each combination
+-- to efficiently identify high-risk customer segments.
 
 -- FINDING: New customers with High monthly charges have the highest churn rate at 73%, 
 -- which is over 24x higher than Long-Term Loyal customers with Low charges (3%).
