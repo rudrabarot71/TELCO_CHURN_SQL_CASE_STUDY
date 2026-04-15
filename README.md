@@ -48,9 +48,6 @@ This project analyzes customer churn for a telecom company to identify which cus
 -- FINDING: Month-to-Month contracts have the highest churn rate at 42%, which is
 -- 21x higher than Two Year contracts (2%).
 
--- INSIGHT: Incentivizing customers to upgrade to annual or bi-annual contracts
--- could serve as an effective retention strategy and reduce overall churn.
-
 SELECT 
     contract,
     COUNT(*) AS total_customers,
@@ -72,9 +69,6 @@ ORDER BY churn_rate_pct DESC;
 
 -- FINDING: Electronic check users have the highest churn rate at 45%, which is
 -- 3x higher than credit card users (15%).
-
--- INSIGHT: Incentivizing customers to switch from electronic check to automatic payment
--- methods could serve as a passive but effective retention strategy to reduce churn.
 
 WITH churn_summary AS (
     SELECT 
@@ -105,10 +99,6 @@ ORDER BY churn_rate_pct DESC;
 
 -- FINDING: New customers (0-12 months) have the highest churn rate at 47%, which is
 -- 4.7x higher than Long-Term Loyal customers (10%).
-
--- INSIGHT: The business should prioritize retention efforts such as onboarding programs,
--- early engagement offers, and proactive support during the first 12 months to
--- significantly reduce overall churn.
 
 WITH tenure_segments AS (
     SELECT *,
@@ -143,9 +133,6 @@ ORDER BY churn_rate_pct DESC;
 -- FINDING: Electronic check users have the highest churn rate at 45%, which is
 -- 3x higher than credit card users (15%).
 
--- INSIGHT: Incentivizing customers to switch from electronic check to automatic payment
--- methods could serve as a passive but effective retention strategy to reduce churn.
-
 SELECT 
     paymentmethod,
     COUNT(*) AS total_customers,
@@ -169,10 +156,6 @@ ORDER BY churn_rate_pct DESC;
 
 -- FINDING: Customers with No Protection have the highest churn rate at 49%, which is
 -- 5.4x higher than fully protected customers (9%).
-
--- INSIGHT: Promoting and incentivizing online security and tech support add-ons to
--- unprotected customers could serve as an effective retention strategy, reducing churn
--- while simultaneously growing add-on revenue.
 
 WITH protection_segments AS (
     SELECT *,
