@@ -29,9 +29,9 @@ This project analyzes customer churn for a telecom company to identify which cus
 ## Business Questions
 
 1. Which contract type has the highest churn rate?
-2. Which payment method has the highest churn rate? *(CTE approach)*
+2. Which payment method has the highest churn rate?
 3. What is the churn rate by customer tenure bucket?
-4. Which payment method has the highest churn rate? *(NULLIF approach)*
+4. Which payment method has the highest churn rate?
 5. Do customers without online security or tech support churn more than those who have it?
 
 ---
@@ -199,7 +199,7 @@ ORDER BY churn_rate_pct DESC;
 
 ## Results + Insights
 
-| # | Question | Key Finding | Business Meaning |
+|  | Question | Key Finding | Business Meaning |
 |---|---|---|---|
 | Q1 | Which contract type has the highest churn rate? | Month-to-Month contracts churn at 42%, 21x higher than Two Year contracts (2%) | Long-term contracts are a powerful retention lever |
 | Q2 | Which payment method has the highest churn rate? | Electronic check users churn at 45%, 3x higher than credit card users (15%) | Auto-pay adoption could passively reduce churn |
